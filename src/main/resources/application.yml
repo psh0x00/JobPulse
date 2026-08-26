@@ -1,0 +1,7 @@
+spring:
+    application:
+        name: jobpulse
+    datasource:
+        url: jdbc:postgresql://localhost:5432/jobpulse
+        username: postgres
+        password: mysecretpassword
