@@ -2,6 +2,9 @@ package com.psh0x00.jobpulse.service;
 
 import com.psh0x00.jobpulse.dto.ApplicationRequest;
 import com.psh0x00.jobpulse.dto.ApplicationResponse;
+import com.psh0x00.jobpulse.exception.InvalidStatusTransitionException;
+import com.psh0x00.jobpulse.exception.ResourceNotFoundException;
+import com.psh0x00.jobpulse.exception.UnauthorizedAccessException;
 import com.psh0x00.jobpulse.model.Application;
 import com.psh0x00.jobpulse.model.Company;
 import com.psh0x00.jobpulse.model.User;
@@ -65,14 +68,14 @@ public class ApplicationService {
     public ApplicationResponse updateStatus(Long applicationId, ApplicationStatus newStatus, User currentUser) {
 
         Application application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new RuntimeException("Application not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("Application not found with id: " + applicationId));
 
         if (!application.getUser().getId().equals(currentUser.getId())) {
-            throw new RuntimeException("Unauthorized access");
+            throw new UnauthorizedAccessException("User is not authorized to update this application");
         }
 
         if(!isValidStatusTransition(application.getApplicationStatus(), newStatus)) {
-            throw new RuntimeException("Invalid status transition from " + application.getApplicationStatus() + " to " + newStatus);
+            throw new InvalidStatusTransitionException("Invalid status transition from " + application.getApplicationStatus() + " to " + newStatus);
         }
 
         application.setApplicationStatus(newStatus);
