@@ -1,11 +1,13 @@
 package com.psh0x00.jobpulse.service;
 
 import com.psh0x00.jobpulse.exception.InvalidStatusTransitionException;
+import com.psh0x00.jobpulse.exception.UnauthorizedAccessException;
 import com.psh0x00.jobpulse.model.Application;
 import com.psh0x00.jobpulse.model.Company;
 import com.psh0x00.jobpulse.model.User;
 import com.psh0x00.jobpulse.model.enums.ApplicationStatus;
 import com.psh0x00.jobpulse.repository.ApplicationRepository;
+import com.psh0x00.jobpulse.repository.CompanyRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -24,6 +26,8 @@ public class ApplicationServiceTest {
 
     @Mock
     private ApplicationRepository applicationRepository;
+    @Mock
+    private CompanyRepository companyRepository;
     @InjectMocks
     private ApplicationService applicationService;
 
@@ -64,6 +68,27 @@ public class ApplicationServiceTest {
         });
 
         assertEquals("Invalid status transition from SAVED to INTERVIEW", exception.getMessage());
+    }
+
+    @Test
+    void testUnauthorizedAccess(){
+        // 1. ARRANGE (Given)
+        User userA = new User();
+        userA.setId(1L);
+
+        User userB = new User();
+        userB.setId(2L);
+
+        Application application = createApplication(userB);
+
+        when(applicationRepository.findById(100L)).thenReturn(Optional.of(application));
+
+        // 2. & 3. ACT & ASSERT (When & Then)
+        RuntimeException exception = assertThrows(UnauthorizedAccessException.class, () -> {
+            applicationService.updateStatus(100L, ApplicationStatus.APPLIED, userA);
+        });
+
+        assertEquals("User is not authorized to update this application", exception.getMessage());
     }
 
 
