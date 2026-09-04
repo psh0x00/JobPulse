@@ -6,6 +6,7 @@ import com.psh0x00.jobpulse.dto.ApplicationResponse;
 import com.psh0x00.jobpulse.model.User;
 import com.psh0x00.jobpulse.model.enums.ApplicationStatus;
 import com.psh0x00.jobpulse.service.ApplicationService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -24,7 +25,7 @@ public class ApplicationController {
     }
 
     @PostMapping
-    public ResponseEntity<ApplicationResponse> createApplication(@RequestBody ApplicationRequest request, @AuthenticationPrincipal User currentUser){
+    public ResponseEntity<ApplicationResponse> createApplication(@Valid @RequestBody ApplicationRequest request, @AuthenticationPrincipal User currentUser){
 
         ApplicationResponse savedApplication = applicationService.createApplication(request, currentUser);
 

@@ -1,13 +1,20 @@
 package com.psh0x00.jobpulse.dto;
 
 import com.psh0x00.jobpulse.model.enums.JobType;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public class ApplicationRequest {
 
+    @NotBlank
     private String companyName;
+
+    @NotBlank
     private String roleTitle;
     private String jobUrl;
     private String location;
+
+    @NotNull
     private JobType jobType;
     private String salaryMin;
     private String salaryMax;
