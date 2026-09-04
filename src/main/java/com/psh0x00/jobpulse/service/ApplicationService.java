@@ -23,8 +23,8 @@ public class ApplicationService {
     private final CompanyRepository companyRepository;
 
 
-    public ApplicationService(ApplicationRepository aaplicationRepository, CompanyRepository companyRepository) {
-        this.applicationRepository = aaplicationRepository;
+    public ApplicationService(ApplicationRepository applicationRepository, CompanyRepository companyRepository) {
+        this.applicationRepository = applicationRepository;
         this.companyRepository = companyRepository;
     }
 
@@ -83,6 +83,19 @@ public class ApplicationService {
 
         return new ApplicationResponse(application);
     }
+
+    public void deleteApplication(Long applicationId, User currentUser){
+
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Application not found with id: " + applicationId));
+
+        if(!application.getUser().getId().equals(currentUser.getId())) {
+            throw new UnauthorizedAccessException("User is not authorized to delete this application");
+        }
+
+        applicationRepository.delete(application);
+    }
+
 
     private boolean isValidStatusTransition(ApplicationStatus applicationStatus, ApplicationStatus newStatus) {
 

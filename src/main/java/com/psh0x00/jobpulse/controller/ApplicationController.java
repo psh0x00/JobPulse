@@ -40,8 +40,14 @@ public class ApplicationController {
 
     @PutMapping("/{id}/status")
     public ResponseEntity<ApplicationResponse> updateStatus(@PathVariable Long id, @RequestParam ApplicationStatus newStatus, @AuthenticationPrincipal User currentUser){
-
         ApplicationResponse updatedApplication = applicationService.updateStatus(id, newStatus, currentUser);
         return ResponseEntity.ok(updatedApplication);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteApplication(@PathVariable Long id, @AuthenticationPrincipal User currentUser){
+        applicationService.deleteApplication(id, currentUser);
+
+        return ResponseEntity.noContent().build();
     }
 }
