@@ -3,6 +3,7 @@ package com.psh0x00.jobpulse.service;
 import com.psh0x00.jobpulse.dto.AuthResponse;
 import com.psh0x00.jobpulse.dto.LoginRequest;
 import com.psh0x00.jobpulse.dto.RegisterRequest;
+import com.psh0x00.jobpulse.exception.ResourceNotFoundException;
 import com.psh0x00.jobpulse.model.User;
 import com.psh0x00.jobpulse.repository.UserRepository;
 import com.psh0x00.jobpulse.security.JwtService;
@@ -49,7 +50,7 @@ public class AuthService {
         ));
 
         User user = repository.findByEmail(request.getEmail())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
 
         String jwtToken = jwtService.generateToken(user);
 
