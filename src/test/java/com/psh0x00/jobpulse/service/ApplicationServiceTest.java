@@ -1,6 +1,8 @@
 package com.psh0x00.jobpulse.service;
 
+import com.psh0x00.jobpulse.exception.InvalidStatusTransitionException;
 import com.psh0x00.jobpulse.model.Application;
+import com.psh0x00.jobpulse.model.Company;
 import com.psh0x00.jobpulse.model.User;
 import com.psh0x00.jobpulse.model.enums.ApplicationStatus;
 import com.psh0x00.jobpulse.repository.ApplicationRepository;
@@ -10,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,10 +34,7 @@ public class ApplicationServiceTest {
         User user = new User();
         user.setId(1L);
 
-        Application application = new Application();
-        application.setId(100L);
-        application.setUser(user);
-        application.setApplicationStatus(ApplicationStatus.SAVED);
+        Application application = createApplication(user);
 
         when(applicationRepository.findById(100L)).thenReturn(Optional.of(application));
 
@@ -54,18 +54,30 @@ public class ApplicationServiceTest {
         User user = new User();
         user.setId(1L);
 
-        Application application = new Application();
-        application.setId(100L);
-        application.setUser(user);
-        application.setApplicationStatus(ApplicationStatus.SAVED);
+        Application application = createApplication(user);
 
         when(applicationRepository.findById(100L)).thenReturn(Optional.of(application));
 
         // 2. & 3. ACT & ASSERT (When & Then)
-        RuntimeException exception = assertThrows(RuntimeException.class, () -> {
+        RuntimeException exception = assertThrows(InvalidStatusTransitionException.class, () -> {
             applicationService.updateStatus(100L, ApplicationStatus.INTERVIEW, user);
         });
 
         assertEquals("Invalid status transition from SAVED to INTERVIEW", exception.getMessage());
+    }
+
+
+    private Application createApplication(User user){
+        Company company = new Company();
+        company.setName("Test Company");
+
+        Application application = new Application();
+        application.setId(100L);
+        application.setUser(user);
+        application.setCompany(company);
+        application.setApplicationStatus(ApplicationStatus.SAVED);
+        application.setDateApplied(LocalDateTime.now());
+
+        return application;
     }
 }
