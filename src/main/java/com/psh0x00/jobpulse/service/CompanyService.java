@@ -1,0 +1,52 @@
+package com.psh0x00.jobpulse.service;
+
+import com.psh0x00.jobpulse.dto.CompanyRequest;
+import com.psh0x00.jobpulse.dto.CompanyResponse;
+import com.psh0x00.jobpulse.exception.ResourceNotFoundException;
+import com.psh0x00.jobpulse.exception.UnauthorizedAccessException;
+import com.psh0x00.jobpulse.model.Company;
+import com.psh0x00.jobpulse.model.User;
+import com.psh0x00.jobpulse.repository.CompanyRepository;
+import com.psh0x00.jobpulse.repository.UserRepository;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+
+@Service
+public class CompanyService {
+
+    private UserRepository userRepository;
+    private CompanyRepository companyRepository;
+
+    public CompanyService(UserRepository userRepository, CompanyRepository companyRepository) {
+        this.userRepository = userRepository;
+        this.companyRepository = companyRepository;
+    }
+
+    public List<CompanyResponse> getUserCompanies(User currentUser) {
+
+        List<Company> userCompanies = companyRepository.findAllByUserId(currentUser.getId());
+        List<CompanyResponse> userCompaniesResponses = userCompanies.stream()
+                .map(CompanyResponse::new)
+                .toList();
+
+        return userCompaniesResponses;
+    }
+
+    public CompanyResponse updateCompany(Long companyId, CompanyRequest updatedCompany, User currentUser) {
+
+        Company existingCompany = companyRepository.findById(companyId)
+                .orElseThrow(() -> new ResourceNotFoundException("Company not found or does not belong to the user"));
+
+        if(!existingCompany.getUser().getId().equals(currentUser.getId())) {
+            throw new UnauthorizedAccessException("User is not authorized to update this company");
+        }
+
+        existingCompany.setIndustry(updatedCompany.getIndustry());
+        existingCompany.setWebsite(updatedCompany.getWebsite());
+        existingCompany.setNotes(updatedCompany.getNotes());
+
+        Company savedCompany = companyRepository.save(existingCompany);
+        return new CompanyResponse(savedCompany);
+    }
+}
