@@ -3,6 +3,7 @@ package com.psh0x00.jobpulse.service;
 import com.psh0x00.jobpulse.dto.AuthResponse;
 import com.psh0x00.jobpulse.dto.LoginRequest;
 import com.psh0x00.jobpulse.dto.RegisterRequest;
+import com.psh0x00.jobpulse.exception.DuplicateResourceException;
 import com.psh0x00.jobpulse.exception.ResourceNotFoundException;
 import com.psh0x00.jobpulse.model.User;
 import com.psh0x00.jobpulse.repository.UserRepository;
@@ -29,6 +30,10 @@ public class AuthService {
     }
 
     public AuthResponse register(RegisterRequest request){
+
+        if(repository.findByEmail(request.getEmail()).isPresent()){
+            throw new DuplicateResourceException("Email already registered");
+        }
 
         User user = new User();
         user.setName(request.getName());
