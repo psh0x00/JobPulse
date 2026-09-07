@@ -41,13 +41,7 @@ public class ApplicationService {
         Application application = new Application();
         application.setUser(currentUser);
         application.setCompany(company);
-        application.setRoleTitle(request.getRoleTitle());
-        application.setJobUrl(request.getJobUrl());
-        application.setLocation(request.getLocation());
-        application.setJobType(request.getJobType());
-        application.setSalaryMin(request.getSalaryMin());
-        application.setSalaryMax(request.getSalaryMax());
-        application.setNotes(request.getNotes());
+        setUpdatedApplication(request, application);
 
         application.setApplicationStatus(ApplicationStatus.SAVED);
         application.setDateApplied(LocalDateTime.now());
@@ -84,6 +78,22 @@ public class ApplicationService {
         return new ApplicationResponse(application);
     }
 
+    public ApplicationResponse updateApplication(Long applicationId, ApplicationRequest request, User currentUser) {
+
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Application not found with id: " + applicationId));
+
+        if (!application.getUser().getId().equals(currentUser.getId())) {
+            throw new UnauthorizedAccessException("User is not authorized to update this application");
+        }
+
+        setUpdatedApplication(request, application);
+
+        applicationRepository.save(application);
+
+        return new ApplicationResponse(application);
+    }
+
     public void deleteApplication(Long applicationId, User currentUser){
 
         Application application = applicationRepository.findById(applicationId)
@@ -96,6 +106,16 @@ public class ApplicationService {
         applicationRepository.delete(application);
     }
 
+
+    private void setUpdatedApplication(ApplicationRequest request, Application application) {
+        application.setRoleTitle(request.getRoleTitle());
+        application.setJobUrl(request.getJobUrl());
+        application.setLocation(request.getLocation());
+        application.setJobType(request.getJobType());
+        application.setSalaryMin(request.getSalaryMin());
+        application.setSalaryMax(request.getSalaryMax());
+        application.setNotes(request.getNotes());
+    }
 
     private boolean isValidStatusTransition(ApplicationStatus applicationStatus, ApplicationStatus newStatus) {
 
