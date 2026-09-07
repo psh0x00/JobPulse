@@ -7,14 +7,10 @@ public class CompanyRequest {
 
     @NotBlank
     private String name;
-
-    @NotBlank
     private String industry;
     private String website;
     private String notes;
 
-    @NotBlank
-    private User user;
 
     public String getName() {
         return name;
@@ -46,13 +42,5 @@ public class CompanyRequest {
 
     public void setNotes(String notes) {
         this.notes = notes;
-    }
-
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
     }
 }
