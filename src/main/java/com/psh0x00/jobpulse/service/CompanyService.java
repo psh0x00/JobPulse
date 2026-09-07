@@ -15,11 +15,9 @@ import java.util.List;
 @Service
 public class CompanyService {
 
-    private UserRepository userRepository;
-    private CompanyRepository companyRepository;
+    private final CompanyRepository companyRepository;
 
-    public CompanyService(UserRepository userRepository, CompanyRepository companyRepository) {
-        this.userRepository = userRepository;
+    public CompanyService(CompanyRepository companyRepository) {
         this.companyRepository = companyRepository;
     }
 
