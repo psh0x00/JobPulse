@@ -44,6 +44,12 @@ public class ApplicationController {
         return ResponseEntity.ok(updatedApplication);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<ApplicationResponse> updateApplication(@PathVariable Long id, @Valid @RequestBody ApplicationRequest updatedApplication, @AuthenticationPrincipal User currentUser){
+        ApplicationResponse updatedApp = applicationService.updateApplication(id, updatedApplication, currentUser);
+        return ResponseEntity.ok(updatedApp);
+    }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteApplication(@PathVariable Long id, @AuthenticationPrincipal User currentUser){
         applicationService.deleteApplication(id, currentUser);
