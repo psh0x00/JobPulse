@@ -11,8 +11,10 @@ import com.psh0x00.jobpulse.model.User;
 import com.psh0x00.jobpulse.model.enums.ApplicationStatus;
 import com.psh0x00.jobpulse.repository.ApplicationRepository;
 import com.psh0x00.jobpulse.repository.CompanyRepository;
+import com.psh0x00.jobpulse.specification.ApplicationSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -53,9 +55,19 @@ public class ApplicationService {
         return new ApplicationResponse(application);
     }
 
-    public Page<ApplicationResponse> getUserApplications(User currentUser, Pageable pageable) {
+    public Page<ApplicationResponse> getUserApplications(User currentUser, ApplicationStatus status, String companyName, Pageable pageable) {
 
-        Page<Application> applications = applicationRepository.findAllByUserId(currentUser.getId(), pageable);
+        Specification<Application> spec = Specification.where(ApplicationSpecification.hasUserId(currentUser.getId()));
+
+        if (status != null) {
+            spec = spec.and(ApplicationSpecification.hasStatus(status));
+        }
+
+        if (companyName != null && !companyName.trim().isEmpty()) {
+            spec = spec.and(ApplicationSpecification.hasCompanyName(companyName));
+        }
+
+        Page<Application> applications = applicationRepository.findAll(spec, pageable);
 
         return applications.map(ApplicationResponse::new);
     }
