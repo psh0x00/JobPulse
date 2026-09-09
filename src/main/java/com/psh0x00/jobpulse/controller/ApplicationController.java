@@ -35,8 +35,8 @@ public class ApplicationController {
     }
 
     @GetMapping
-    public ResponseEntity<Page<ApplicationResponse>> getUserApplications(@AuthenticationPrincipal User currentUser, Pageable pageable){
-        Page<ApplicationResponse> userApplications = applicationService.getUserApplications(currentUser, pageable);
+    public ResponseEntity<Page<ApplicationResponse>> getUserApplications(@AuthenticationPrincipal User currentUser, @RequestParam(required = false) ApplicationStatus status, @RequestParam(required = false) String companyName, Pageable pageable){
+        Page<ApplicationResponse> userApplications = applicationService.getUserApplications(currentUser, status, companyName, pageable);
         return ResponseEntity.ok(userApplications);
     }
 
