@@ -41,7 +41,7 @@ public class ApplicationService {
         Application application = new Application();
         application.setUser(currentUser);
         application.setCompany(company);
-        setUpdatedApplication(request, application);
+        setApplicationAttributes(request, application);
 
         application.setApplicationStatus(ApplicationStatus.SAVED);
         application.setDateApplied(LocalDateTime.now());
@@ -87,7 +87,7 @@ public class ApplicationService {
             throw new UnauthorizedAccessException("User is not authorized to update this application");
         }
 
-        setUpdatedApplication(request, application);
+        setApplicationAttributes(request, application);
 
         applicationRepository.save(application);
 
@@ -107,7 +107,7 @@ public class ApplicationService {
     }
 
 
-    private void setUpdatedApplication(ApplicationRequest request, Application application) {
+    private void setApplicationAttributes(ApplicationRequest request, Application application) {
         application.setRoleTitle(request.getRoleTitle());
         application.setJobUrl(request.getJobUrl());
         application.setLocation(request.getLocation());
