@@ -5,6 +5,8 @@ import com.psh0x00.jobpulse.dto.ContactResponse;
 import com.psh0x00.jobpulse.model.User;
 import com.psh0x00.jobpulse.service.ContactService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -29,8 +31,8 @@ public class ContactController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ContactResponse>> getAllContacts(@AuthenticationPrincipal User currentUser) {
-        List<ContactResponse> userContacts = contactService.getUserContacts(currentUser);
+    public ResponseEntity<Page<ContactResponse>> getAllContacts(@AuthenticationPrincipal User currentUser, Pageable pageable) {
+        Page<ContactResponse> userContacts = contactService.getUserContacts(currentUser, pageable);
         return ResponseEntity.ok(userContacts);
     }
 

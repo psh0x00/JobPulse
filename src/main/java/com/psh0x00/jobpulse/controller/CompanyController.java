@@ -7,6 +7,8 @@ import com.psh0x00.jobpulse.model.User;
 import com.psh0x00.jobpulse.model.enums.ApplicationStatus;
 import com.psh0x00.jobpulse.service.CompanyService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -25,8 +27,8 @@ public class CompanyController {
     }
 
     @GetMapping
-    public ResponseEntity<List<CompanyResponse>> getUserCompanies(@AuthenticationPrincipal User currentUser) {
-        List<CompanyResponse> companies = companyService.getUserCompanies(currentUser);
+    public ResponseEntity<Page<CompanyResponse>> getUserCompanies(@AuthenticationPrincipal User currentUser, Pageable pageable) {
+        Page<CompanyResponse> companies = companyService.getUserCompanies(currentUser, pageable);
         return ResponseEntity.ok(companies);
     }
 

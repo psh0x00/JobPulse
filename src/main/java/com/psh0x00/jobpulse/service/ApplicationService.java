@@ -11,6 +11,8 @@ import com.psh0x00.jobpulse.model.User;
 import com.psh0x00.jobpulse.model.enums.ApplicationStatus;
 import com.psh0x00.jobpulse.repository.ApplicationRepository;
 import com.psh0x00.jobpulse.repository.CompanyRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -51,12 +53,11 @@ public class ApplicationService {
         return new ApplicationResponse(application);
     }
 
-    public List<ApplicationResponse> getUserApplications(User currentUser){
+    public Page<ApplicationResponse> getUserApplications(User currentUser, Pageable pageable) {
 
-        List<Application> applications = applicationRepository.findAllByUserId(currentUser.getId());
-        List<ApplicationResponse> userApplications = applications.stream().map(ApplicationResponse::new).toList();
+        Page<Application> applications = applicationRepository.findAllByUserId(currentUser.getId(), pageable);
 
-        return userApplications;
+        return applications.map(ApplicationResponse::new);
     }
 
     public ApplicationResponse updateStatus(Long applicationId, ApplicationStatus newStatus, User currentUser) {

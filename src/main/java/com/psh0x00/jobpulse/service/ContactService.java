@@ -10,6 +10,8 @@ import com.psh0x00.jobpulse.model.Contact;
 import com.psh0x00.jobpulse.model.User;
 import com.psh0x00.jobpulse.repository.CompanyRepository;
 import com.psh0x00.jobpulse.repository.ContactRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -44,9 +46,9 @@ public class ContactService {
         return new ContactResponse(contactRepository.save(contact));
     }
 
-    public List<ContactResponse> getUserContacts(User currentUser) {
-        List<Contact> contacts = contactRepository.findAllByUserId(currentUser.getId());
-        return contacts.stream().map(ContactResponse::new).toList();
+    public Page<ContactResponse> getUserContacts(User currentUser, Pageable pageable) {
+        Page<Contact> contacts = contactRepository.findAllByUserId(currentUser.getId(), pageable);
+        return contacts.map(ContactResponse::new);
     }
 
     public ContactResponse updateContact(Long contactId, ContactRequest contactRequest, User currentUser) {

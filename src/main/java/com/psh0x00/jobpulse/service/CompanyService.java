@@ -8,6 +8,8 @@ import com.psh0x00.jobpulse.model.Company;
 import com.psh0x00.jobpulse.model.User;
 import com.psh0x00.jobpulse.repository.CompanyRepository;
 import com.psh0x00.jobpulse.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -21,14 +23,11 @@ public class CompanyService {
         this.companyRepository = companyRepository;
     }
 
-    public List<CompanyResponse> getUserCompanies(User currentUser) {
+    public Page<CompanyResponse> getUserCompanies(User currentUser, Pageable pageable) {
 
-        List<Company> userCompanies = companyRepository.findAllByUserId(currentUser.getId());
-        List<CompanyResponse> userCompaniesResponses = userCompanies.stream()
-                .map(CompanyResponse::new)
-                .toList();
+        Page<Company> userCompanies = companyRepository.findAllByUserId(currentUser.getId(), pageable);
 
-        return userCompaniesResponses;
+        return userCompanies.map(CompanyResponse::new);
     }
 
     public CompanyResponse updateCompany(Long companyId, CompanyRequest updatedCompany, User currentUser) {
