@@ -29,6 +29,8 @@ public class Contact {
 
     private String linkedinUrl;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private RelationshipType relationshipType;
 
     private String notes;
