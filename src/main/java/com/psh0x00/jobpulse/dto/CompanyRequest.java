@@ -1,6 +1,5 @@
 package com.psh0x00.jobpulse.dto;
 
-import com.psh0x00.jobpulse.model.User;
 import jakarta.validation.constraints.NotBlank;
 
 public class CompanyRequest {

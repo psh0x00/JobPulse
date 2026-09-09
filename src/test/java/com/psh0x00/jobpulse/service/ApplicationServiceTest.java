@@ -1,11 +1,14 @@
 package com.psh0x00.jobpulse.service;
 
+import com.psh0x00.jobpulse.dto.ApplicationRequest;
+import com.psh0x00.jobpulse.dto.ApplicationResponse;
 import com.psh0x00.jobpulse.exception.InvalidStatusTransitionException;
 import com.psh0x00.jobpulse.exception.UnauthorizedAccessException;
 import com.psh0x00.jobpulse.model.Application;
 import com.psh0x00.jobpulse.model.Company;
 import com.psh0x00.jobpulse.model.User;
 import com.psh0x00.jobpulse.model.enums.ApplicationStatus;
+import com.psh0x00.jobpulse.model.enums.JobType;
 import com.psh0x00.jobpulse.repository.ApplicationRepository;
 import com.psh0x00.jobpulse.repository.CompanyRepository;
 import org.junit.jupiter.api.Test;
@@ -13,13 +16,19 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 public class ApplicationServiceTest {
@@ -89,6 +98,80 @@ public class ApplicationServiceTest {
         });
 
         assertEquals("User is not authorized to update this application", exception.getMessage());
+    }
+
+    @Test
+    void testCreateApplication_Success(){
+
+        Company company = new Company();
+        company.setName("Software Engineer");
+
+        ApplicationRequest request = new ApplicationRequest();
+        request.setRoleTitle("Software Engineer");
+        request.setCompanyName(company.getName());
+        request.setJobType(JobType.FULL_TIME);
+
+        User user = new User();
+        user.setId(1L);
+
+        when(companyRepository.findByNameAndUserId("Software Engineer", 1L)).thenReturn(Optional.of(company));
+
+        ApplicationResponse response = applicationService.createApplication(request, user);
+
+        assertEquals("Software Engineer", response.getRoleTitle());
+        assertEquals(JobType.FULL_TIME, response.getJobType());
+        assertEquals("Software Engineer", response.getCompanyName());
+
+        verify(applicationRepository, times(1)).save(any(Application.class));
+    }
+
+    @Test
+    void testGetUserApplications_ReturnsPage(){
+
+        User user = new User();
+        user.setId(1L);
+
+       when(applicationRepository.findAll(any(Specification.class), any(PageRequest.class))).thenReturn(new PageImpl<>(List.of(createApplication(user))));
+
+        Page<ApplicationResponse> applicationsPage = applicationService.getUserApplications(user, ApplicationStatus.SAVED, "test_name", PageRequest.of(0, 10));
+
+        assertEquals(1, applicationsPage.getTotalElements());
+        verify(applicationRepository, times(1)).findAll(any(Specification.class), any(PageRequest.class));
+    }
+
+    @Test
+    void testDeleteApplication_Success(){
+
+        User user = new User();
+        user.setId(1L);
+
+        Application application = createApplication(user);
+
+        when(applicationRepository.findById(100L)).thenReturn(Optional.of(application));
+
+        applicationService.deleteApplication(100L, user);
+
+        verify(applicationRepository, times(1)).delete(application);
+    }
+
+    @Test
+    void testDeleteApplication_Unauthorized() {
+
+        User userA = new User();
+        userA.setId(1L);
+
+        User userB = new User();
+        userB.setId(2L);
+
+        Application application = createApplication(userB);
+
+        when(applicationRepository.findById(100L)).thenReturn(Optional.of(application));
+
+        RuntimeException exception = assertThrows(UnauthorizedAccessException.class, () -> {
+            applicationService.deleteApplication(100L, userA);
+        });
+
+        assertEquals("User is not authorized to delete this application", exception.getMessage());
     }
 
 
