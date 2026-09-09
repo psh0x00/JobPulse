@@ -7,6 +7,8 @@ import com.psh0x00.jobpulse.model.User;
 import com.psh0x00.jobpulse.model.enums.ApplicationStatus;
 import com.psh0x00.jobpulse.service.ApplicationService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -33,8 +35,8 @@ public class ApplicationController {
     }
 
     @GetMapping
-    public ResponseEntity<List<ApplicationResponse>> getUserApplications(@AuthenticationPrincipal User currentUser){
-        List<ApplicationResponse> userApplications = applicationService.getUserApplications(currentUser);
+    public ResponseEntity<Page<ApplicationResponse>> getUserApplications(@AuthenticationPrincipal User currentUser, Pageable pageable){
+        Page<ApplicationResponse> userApplications = applicationService.getUserApplications(currentUser, pageable);
         return ResponseEntity.ok(userApplications);
     }
 
