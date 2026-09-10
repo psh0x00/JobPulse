@@ -4,6 +4,10 @@ import com.psh0x00.jobpulse.model.Application;
 import com.psh0x00.jobpulse.model.enums.ApplicationStatus;
 import com.psh0x00.jobpulse.model.enums.JobType;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class ApplicationResponse {
 
     private Long id;
@@ -12,6 +16,7 @@ public class ApplicationResponse {
     private JobType jobType;
     private ApplicationStatus applicationStatus;
     private String dateApplied;
+    private List<TagResponse> tags = new ArrayList<>();
 
 
     public ApplicationResponse(Application application) {
@@ -21,6 +26,7 @@ public class ApplicationResponse {
         this.jobType = application.getJobType();
         this.applicationStatus = application.getApplicationStatus();
         this.dateApplied = application.getDateApplied().toString();
+        this.tags = application.getTags().stream().map(TagResponse::new).collect(Collectors.toList());
     }
 
     public String getCompanyName() {

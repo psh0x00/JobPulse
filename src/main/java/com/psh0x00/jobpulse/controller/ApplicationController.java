@@ -58,4 +58,16 @@ public class ApplicationController {
 
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/tags/{tagId}")
+    public ResponseEntity<ApplicationResponse> addTagToApplication(@PathVariable Long id, @PathVariable Long tagId, @AuthenticationPrincipal User currentUser) {
+        ApplicationResponse updatedApplication = applicationService.addTagToApplication(id, tagId, currentUser);
+        return ResponseEntity.ok(updatedApplication);
+    }
+
+    @DeleteMapping("/{id}/tags/{tagId}")
+    public ResponseEntity<ApplicationResponse> removeTagFromApplication(@PathVariable Long id, @PathVariable Long tagId, @AuthenticationPrincipal User currentUser) {
+        ApplicationResponse updatedApplication = applicationService.removeTagFromApplication(id, tagId, currentUser);
+        return ResponseEntity.ok(updatedApplication);
+    }
 }
