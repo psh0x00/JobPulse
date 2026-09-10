@@ -7,10 +7,12 @@ import com.psh0x00.jobpulse.exception.ResourceNotFoundException;
 import com.psh0x00.jobpulse.exception.UnauthorizedAccessException;
 import com.psh0x00.jobpulse.model.Application;
 import com.psh0x00.jobpulse.model.Company;
+import com.psh0x00.jobpulse.model.Tag;
 import com.psh0x00.jobpulse.model.User;
 import com.psh0x00.jobpulse.model.enums.ApplicationStatus;
 import com.psh0x00.jobpulse.repository.ApplicationRepository;
 import com.psh0x00.jobpulse.repository.CompanyRepository;
+import com.psh0x00.jobpulse.repository.TagRepository;
 import com.psh0x00.jobpulse.specification.ApplicationSpecification;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -25,11 +27,13 @@ public class ApplicationService {
 
     private final ApplicationRepository applicationRepository;
     private final CompanyRepository companyRepository;
+    private final TagRepository tagRepository;
 
 
-    public ApplicationService(ApplicationRepository applicationRepository, CompanyRepository companyRepository) {
+    public ApplicationService(ApplicationRepository applicationRepository, CompanyRepository companyRepository, TagRepository tagRepository) {
         this.applicationRepository = applicationRepository;
         this.companyRepository = companyRepository;
+        this.tagRepository = tagRepository;
     }
 
     public ApplicationResponse createApplication(ApplicationRequest request, User currentUser){
@@ -117,6 +121,42 @@ public class ApplicationService {
         }
 
         applicationRepository.delete(application);
+    }
+
+    public ApplicationResponse addTagToApplication(Long applicationId, Long tagId, User currentUser){
+
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Application not found with id: " + applicationId));
+
+        if(!application.getUser().getId().equals(currentUser.getId())) {
+            throw new UnauthorizedAccessException("User is not authorized to update this application");
+        }
+
+        Tag tag = tagRepository.findById(tagId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tag not found with id: " + tagId));
+
+        application.getTags().add(tag);
+        applicationRepository.save(application);
+
+        return new ApplicationResponse(application);
+    }
+
+    public ApplicationResponse removeTagFromApplication(Long applicationId, Long tagId, User currentUser){
+
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Application not found with id: " + applicationId));
+
+        if(!application.getUser().getId().equals(currentUser.getId())) {
+            throw new UnauthorizedAccessException("User is not authorized to update this application");
+        }
+
+        Tag tag = tagRepository.findById(tagId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tag not found with id: " + tagId));
+
+        application.getTags().remove(tag);
+        applicationRepository.save(application);
+
+        return new ApplicationResponse(application);
     }
 
 
