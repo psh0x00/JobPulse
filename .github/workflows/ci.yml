@@ -6,20 +6,20 @@ on:
   pull_request:
     branches: [ "main" ]
 
-  jobs:
-    build-and-test:
-      runs-on: ubuntu-latest
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
 
-      steps:
-        - name: Checkout Code
-          uses: actions/checkout@v4
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-        - name: Set up Java 21
-          uses: actions/setup-java@v4
-          with:
-            java-version: '21'
-            distribuition: 'temurin'
-            cache: 'maven'
+      - name: Set up Java 21
+        uses: actions/setup-java@v4
+        with:
+          java-version: '21'
+          distribution: 'temurin'
+          cache: 'maven'
 
-        - name: Run Maven Tests (wit Testcontainers!)
-          run: ./mvnw clean test
+      - name: Run Maven Tests (wit Testcontainers!)
+        run: ./mvnw clean test
