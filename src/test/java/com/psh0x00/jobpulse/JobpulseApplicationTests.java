@@ -1,21 +1,32 @@
 package com.psh0x00.jobpulse;
 
+import com.psh0x00.jobpulse.dto.RegisterRequest;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
+import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.MediaType;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest
 @Testcontainers
+@AutoConfigureMockMvc
 class JobpulseApplicationTests {
+
+	@Autowired
+	private MockMvc mockMvc;
 
 	@Container
 	static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:15-alpine")
@@ -42,4 +53,19 @@ class JobpulseApplicationTests {
 	void contextLoads() {
 	}
 
+	@Test
+	void shouldCreateUserAndSaveToRealDatabase() throws Exception {
+		ObjectMapper objectMapper = new ObjectMapper();
+
+		RegisterRequest request = new RegisterRequest();
+		request.setName("Integration Test User");
+		request.setEmail("integration@test.com");
+		request.setPassword("password123");
+
+		mockMvc.perform(MockMvcRequestBuilders.post("/api/v1/auth/register")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content(objectMapper.writeValueAsString(request))
+		).andExpect(MockMvcResultMatchers.status().isOk())
+				.andExpect(MockMvcResultMatchers.jsonPath("$.token").exists());
+	}
 }
