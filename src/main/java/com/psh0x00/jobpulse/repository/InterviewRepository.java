@@ -8,4 +8,6 @@ import java.util.List;
 public interface InterviewRepository extends JpaRepository<Interview, Long> {
 
     List<Interview> findAllByApplicationId(Long applicationId);
+
+    long countByApplicationUserId(Long userId);
 }
