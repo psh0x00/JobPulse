@@ -14,6 +14,7 @@ import com.psh0x00.jobpulse.repository.ApplicationRepository;
 import com.psh0x00.jobpulse.repository.CompanyRepository;
 import com.psh0x00.jobpulse.repository.TagRepository;
 import com.psh0x00.jobpulse.specification.ApplicationSpecification;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -36,6 +37,7 @@ public class ApplicationService {
         this.tagRepository = tagRepository;
     }
 
+    @CacheEvict(value = "dashboardStats", key = "#currentUser.id")
     public ApplicationResponse createApplication(ApplicationRequest request, User currentUser){
 
         Company company = companyRepository.findByNameAndUserId(request.getCompanyName(), currentUser.getId())
@@ -76,6 +78,7 @@ public class ApplicationService {
         return applications.map(ApplicationResponse::new);
     }
 
+    @CacheEvict(value = "dashboardStats", key = "#currentUser.id")
     public ApplicationResponse updateStatus(Long applicationId, ApplicationStatus newStatus, User currentUser) {
 
         Application application = applicationRepository.findById(applicationId)
@@ -95,6 +98,7 @@ public class ApplicationService {
         return new ApplicationResponse(application);
     }
 
+    @CacheEvict(value = "dashboardStats", key = "#currentUser.id")
     public ApplicationResponse updateApplication(Long applicationId, ApplicationRequest request, User currentUser) {
 
         Application application = applicationRepository.findById(applicationId)
@@ -111,6 +115,7 @@ public class ApplicationService {
         return new ApplicationResponse(application);
     }
 
+    @CacheEvict(value = "dashboardStats", key = "#currentUser.id")
     public void deleteApplication(Long applicationId, User currentUser){
 
         Application application = applicationRepository.findById(applicationId)
@@ -123,17 +128,11 @@ public class ApplicationService {
         applicationRepository.delete(application);
     }
 
+    @CacheEvict(value = "dashboardStats", key = "#currentUser.id")
     public ApplicationResponse addTagToApplication(Long applicationId, Long tagId, User currentUser){
 
-        Application application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Application not found with id: " + applicationId));
-
-        if(!application.getUser().getId().equals(currentUser.getId())) {
-            throw new UnauthorizedAccessException("User is not authorized to update this application");
-        }
-
-        Tag tag = tagRepository.findById(tagId)
-                .orElseThrow(() -> new ResourceNotFoundException("Tag not found with id: " + tagId));
+        Application application = findOwnedApplicationById(applicationId, currentUser);
+        Tag tag = findTagById(tagId);
 
         application.getTags().add(tag);
         applicationRepository.save(application);
@@ -141,20 +140,15 @@ public class ApplicationService {
         return new ApplicationResponse(application);
     }
 
+    @CacheEvict(value = "dashboardStats", key = "#currentUser.id")
     public ApplicationResponse removeTagFromApplication(Long applicationId, Long tagId, User currentUser){
 
-        Application application = applicationRepository.findById(applicationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Application not found with id: " + applicationId));
-
-        if(!application.getUser().getId().equals(currentUser.getId())) {
-            throw new UnauthorizedAccessException("User is not authorized to update this application");
-        }
-
-        Tag tag = tagRepository.findById(tagId)
-                .orElseThrow(() -> new ResourceNotFoundException("Tag not found with id: " + tagId));
+        Application application = findOwnedApplicationById(applicationId, currentUser);
+        Tag tag = findTagById(tagId);
 
         application.getTags().remove(tag);
         applicationRepository.save(application);
+
 
         return new ApplicationResponse(application);
     }
@@ -184,5 +178,21 @@ public class ApplicationService {
             case WITHDRAWN -> false;
             default -> false;
         };
+    }
+
+    private Application findOwnedApplicationById(Long applicationId, User currentUser) {
+        Application application = applicationRepository.findById(applicationId)
+                .orElseThrow(() -> new ResourceNotFoundException("Application not found with id: " + applicationId));
+
+        if (!application.getUser().getId().equals(currentUser.getId())) {
+            throw new UnauthorizedAccessException("User is not authorized to update this application");
+        }
+
+        return application;
+    }
+
+    private Tag findTagById(Long tagId) {
+        return tagRepository.findById(tagId)
+                .orElseThrow(() -> new ResourceNotFoundException("Tag not found with id: " + tagId));
     }
 }
