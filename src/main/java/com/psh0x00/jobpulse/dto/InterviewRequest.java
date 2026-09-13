@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 public class InterviewRequest {
 
-    @NotBlank
+    @NotNull
     private LocalDateTime scheduledAt;
 
     @NotNull

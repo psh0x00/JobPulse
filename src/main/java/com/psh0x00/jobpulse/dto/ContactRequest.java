@@ -2,13 +2,14 @@ package com.psh0x00.jobpulse.dto;
 
 import com.psh0x00.jobpulse.model.enums.RelationshipType;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 public class ContactRequest {
 
     @NotBlank
     private String name;
 
-    @NotBlank
+    @NotNull
     private Long companyId;
 
     private String role;

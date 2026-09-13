@@ -40,7 +40,7 @@ public class ApplicationController {
         return ResponseEntity.ok(userApplications);
     }
 
-    @PutMapping("/{id}/status")
+    @PatchMapping("/{id}/status")
     public ResponseEntity<ApplicationResponse> updateStatus(@PathVariable Long id, @RequestParam ApplicationStatus newStatus, @AuthenticationPrincipal User currentUser){
         ApplicationResponse updatedApplication = applicationService.updateStatus(id, newStatus, currentUser);
         return ResponseEntity.ok(updatedApplication);
