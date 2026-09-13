@@ -56,6 +56,7 @@ class JobpulseApplicationTests {
 		registry.add("spring.datasource.url", postgreSQLContainer::getJdbcUrl);
 		registry.add("spring.datasource.username", postgreSQLContainer::getUsername);
 		registry.add("spring.datasource.password", postgreSQLContainer::getPassword);
+		registry.add("management.health.redis.enabled", () -> "false");
 	}
 
 	@TestConfiguration
