@@ -12,7 +12,7 @@
 ## 📌 Overview
 JobPulse is a modern, RESTful API built with **Spring Boot 4** and **Java 21**, designed to help job seekers track their applications, interviews, and follow-ups. It features secure JWT authentication, advanced caching, and automated background tasks.
 
-**Live Demo:** `https://jobpulse-production-bd49.up.railway.app/`
+**Live Demo:** `[https://jobpulse-production-bd49.up.railway.app/](https://jobpulse-production-bd49.up.railway.app/swagger-ui/index.html)`
 
 ## 🏗 Architecture
 JobPulse follows a clean, layered monolithic architecture:
